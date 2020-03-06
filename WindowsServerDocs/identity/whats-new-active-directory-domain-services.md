@@ -38,12 +38,12 @@ Privileged access management (PAM) helps mitigate security concerns for Active D
   
 - New shadow security principals (groups) that are provisioned in the bastion forest by MIM in response to administrative privilege requests. The shadow security principals have an attribute that references the SID of an administrative group in an existing forest. This allows the shadow group to access resources in an existing forest without changing any access control lists (ACLs).  
   
-- An expiring links feature, which enables time-bound membership in a shadow group. A user can be added to the group for just enough time required to perform an administrative task. The time-bound membership is expressed by a time-to-live (TTL) value that is propagated to a Kerberos ticket lifetime.  
+- An expiring links feature, which enables time-bound membership in a shadow group. A user can be added to the group for just enough time required to perform an administrative task. The time-bound membership is expressed by a time-to-live (TTL) value that is propagated to a Kerberos ticket lifetime for global or universal groups.
   
     > [!NOTE]  
     > Expiring links are available on all linked attributes. But the member/memberOf linked attribute relationship between a group and a user is the only example where a complete solution such as PAM is preconfigured to use the expiring links feature.  
   
-- KDC enhancements are built in to Active Directory domain controllers to restrict Kerberos ticket lifetime to the lowest possible time-to-live (TTL) value in cases where a user has multiple time-bound memberships in administrative groups. For example, if you are added to a time-bound group A, then when you log on, the Kerberos ticket-granting ticket (TGT) lifetime is equal to the time you have remaining in group A. If you are also a member of another time-bound group B, which has a lower TTL than group A, then the TGT lifetime is equal to the time you have remaining in group B.  
+- KDC enhancements are built in to Active Directory domain controllers to restrict Kerberos ticket lifetime to the lowest possible time-to-live (TTL) value in cases where a user has multiple time-bound memberships in global or universal groups. For example, if you are added to a time-bound group A, then when you log on, the Kerberos ticket-granting ticket (TGT) lifetime is equal to the time you have remaining in group A. If you are also a member of another time-bound group B, which has a lower TTL than group A, then the TGT lifetime is equal to the time you have remaining in group B.  
   
 - New monitoring capabilities to help you easily identify who requested access, what access was granted, and what activities were performed.  
 
