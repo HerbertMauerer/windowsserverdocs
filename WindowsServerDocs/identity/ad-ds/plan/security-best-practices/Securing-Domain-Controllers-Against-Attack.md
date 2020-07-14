@@ -34,13 +34,15 @@ In datacenters, physical domain controllers should be installed in dedicated sec
 
 #### Virtual Domain Controllers
 
-If you implement virtual domain controllers, you should ensure that domain controllers run on separate physical hosts than other virtual machines in the environment. Even if you use a third-party virtualization platform, consider deploying virtual domain controllers on Hyper-V Server in Windows Server 2012 or Windows Server 2008 R2, which provides a minimal attack surface and can be managed with the domain controllers it hosts rather than being managed with the rest of the virtualization hosts. If you implement System Center Virtual Machine Manager (SCVMM) for management of your virtualization infrastructure, you can delegate administration for the physical hosts on which domain controller virtual machines reside and the domain controllers themselves to authorized administrators. You should also consider separating the storage of virtual domain controllers to prevent storage administrators from accessing the virtual machine files.
+If you implement virtual domain controllers, you should ensure that domain controllers run on separate physical hosts than other virtual machines in the environment. Even if you use a third-party virtualization platform, consider deploying virtual domain controllers on Hyper-V Server, which provides a minimal attack surface and can be managed with the domain controllers it hosts rather than being managed with the rest of the virtualization hosts. There is a guide to running Domain controllers with Hyper-V at [Virtualizing Domain Controllers using Hyper-V](https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/get-started/virtual-dc/virtualized-domain-controllers-hyper-v).
+
+If you implement System Center Virtual Machine Manager (SCVMM) for management of your virtualization infrastructure, you can delegate administration for the physical hosts on which domain controller virtual machines reside and the domain controllers themselves to authorized administrators. You should also consider separating the storage of virtual domain controllers to prevent storage administrators from accessing the virtual machine files.
 
 ### Branch Locations
 
 #### Physical Domain Controllers in branches
 
-In locations in which multiple servers reside but are not physically secured to the degree that datacenter servers are secured, physical domain controllers should be configured with TPM chips and BitLocker Drive Encryption for all server volumes. If a domain controller cannot be stored in a locked room in branch locations, you should consider deploying RODCs in those locations.
+In locations in which multiple servers reside but are not physically secured to the degree that datacenter servers are secured, physical domain controllers should be configured with TPM chips and BitLocker Drive Encryption for all server volumes. If a domain controller cannot be stored in a locked room in branch locations, you should consider deploying Read-only Domain Controllers (RODC) in those locations.
 
 #### Virtual Domain Controllers in branches
 
@@ -48,7 +50,7 @@ Whenever possible, you should run virtual domain controllers in branch offices o
 
 ### Remote Locations with Limited Space and Security
 
-If your infrastructure includes locations in which only a single physical server can be installed, a server capable of running virtualization workloads should be installed in the remote location, and BitLocker Drive Encryption should be configured to protect all volumes in the server. One virtual machine on the server should run an RODC, with other servers running as separate virtual machines on the host. Information about planning for deployment of RODC is provided in the [Read-Only Domain Controller Planning and Deployment Guide](https://docs.microsoft.com/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/cc771744(v=ws.10)). For more information about deploying and securing virtualized domain controllers, see [Running Domain Controllers in Hyper-V](https://docs.microsoft.com/previous-versions/windows/it-pro/windows-server-2008-R2-and-2008/dd363553(v=ws.10)). For more detailed guidance for hardening Hyper-V, delegating virtual machine management, and protecting virtual machines, see the [Hyper-V Security Guide](https://www.microsoft.com/download/details.aspx?id=16650) Solution Accelerator on the Microsoft website.
+If your infrastructure includes locations in which only a single physical server can be installed, a server capable of running virtualization workloads should be installed in the remote location, and BitLocker Drive Encryption should be configured to protect all volumes in the server. One virtual machine on the server should run an RODC, with other servers running as separate virtual machines on the host. Information about planning for deployment of RODC is provided in the [Planning Domain Controller Placement](https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/planning-domain-controller-placement). For more detailed guidance for hardening Hyper-V, delegating virtual machine management, and protecting virtual machines, see the [Plan for Hyper-V security in Windows Server](https://docs.microsoft.com/en-us/windows-server/virtualization/hyper-v/plan/plan-hyper-v-security-in-windows-server).
 
 ## Domain Controller Operating Systems
 
@@ -57,10 +59,6 @@ You should run all domain controllers on the newest version of Windows Server th
 ## Secure Configuration of Domain Controllers
 
 A number of freely available tools, some of which are installed by default in Windows, can be used to create an initial security configuration baseline for domain controllers that can subsequently be enforced by GPOs. These tools are described here.
-
-### Security Configuration Wizard
-
-All domain controllers should be locked down upon initial build. This can be achieved using the Security Configuration Wizard that ships natively in Windows Server to configure service, registry, system, and WFAS settings on a "base build" domain controller. Settings can be saved and exported to a GPO that can be linked to the Domain Controllers OU in each domain in the forest to enforce consistent configuration of domain controllers. If your domain contains multiple versions of Windows operating systems, you can configure Windows Management Instrumentation (WMI) filters to apply GPOs only to the domain controllers running the corresponding version of the operating system.
 
 ### Microsoft Security Compliance Toolkit
 
@@ -80,17 +78,13 @@ One of the checks that is performed as part of an Active Directory Security Asse
 
 As previously described in the "Misconfiguration" section of [Avenues to Compromise](../../../ad-ds/plan/security-best-practices/Avenues-to-Compromise.md), browsing the Internet (or an infected intranet) from one of the most powerful computers in a Windows infrastructure using a highly privileged account (which are the only accounts permitted to log on locally to domain controllers by default) presents an extraordinary risk to an organization's security. Whether via a drive by download or by download of malware-infected "utilities," attackers can gain access to everything they need to completely compromise or destroy the Active Directory environment.
 
-Although Windows Server 2012, Windows Server 2008 R2, Windows Server 2008, and current versions of Internet Explorer offer a number of protections against malicious downloads, in most cases in which domain controllers and privileged accounts had been used to browse the Internet, the domain controllers were running Windows Server 2003, or protections offered by newer operating systems and browsers had been intentionally disabled.
+Windows Server 2012 and newer, and current versions of Internet Explorer and Edge offer a number of protections against malicious downloads. We have seen that in most cases where  domain controllers and privileged accounts had been used to browse the Internet, protections offered by newer operating systems and browsers had been intentionally disabled.
 
 Launching web browsers on domain controllers should be prohibited not only by policy, but by technical controls, and domain controllers should not be permitted to access the Internet. If your domain controllers need to replicate across sites, you should implement secure connections between the sites. Although detailed configuration instructions are outside the scope of this document, you can implement a number of controls to restrict the ability of domain controllers to be misused or misconfigured and subsequently compromised.
 
 ### Perimeter Firewall Restrictions
 
 Perimeter firewalls should be configured to block outbound connections from domain controllers to the Internet. Although domain controllers may need to communicate across site boundaries, perimeter firewalls can be configured to allow intersite communication by following the guidelines provided in [How to configure a firewall for Active Directory domains and trusts](https://support.microsoft.com/kb/179442) on the Microsoft Support website.
-
-### DC Firewall Configurations
-
-As described earlier, you should use the Security Configuration Wizard to capture configuration settings for the Windows Firewall with Advanced Security on domain controllers. You should review the output of Security Configuration Wizard to ensure that the firewall configuration settings meet your organization's requirements, and then use GPOs to enforce configuration settings.
 
 ### Preventing Web Browsing from Domain Controllers
 
